@@ -3,20 +3,26 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <EditText
-        android:id="@+id/edt"
-        android:layout_width="fill_parent"
+    <Button
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:ems="10" >
+        android:text="Desliga"
+        android:onClick="desliga" />
+
+    <Button
+        android:onClick="liga"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Liga" />
+
+    <EditText
+        android:id="@+id/edtLog"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:ems="10"
+        android:inputType="textPostalAddress" >
 
         <requestFocus />
     </EditText>
-
-    <Button
-        android:id="@+id/btn"
-        android:onClick="showMorse"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Show me Morse" />
 
 </LinearLayout>

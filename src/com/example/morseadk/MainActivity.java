@@ -16,6 +16,7 @@ import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,8 +34,6 @@ public class MainActivity extends Activity {
 	private ParcelFileDescriptor mFileDescriptor;
 	private FileInputStream mInputStream;
 	private FileOutputStream mOutputStream;
-	private TextView tvEdt;
-	private Button btn;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -42,14 +41,10 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 
 		mUsbManager = UsbManager.getInstance(this);
-		mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(
-				ACTION_USB_PERMISSION), 0);
+		mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
 		IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
 		filter.addAction(UsbManager.ACTION_USB_ACCESSORY_DETACHED);
 		registerReceiver(mUsbReceiver, filter);
-		
-		tvEdt = (TextView) findViewById(R.id.edt);
-		btn = (Button) findViewById(R.id.btn);
 	}
 
 	@Override
@@ -101,8 +96,7 @@ public class MainActivity extends Activity {
 			if (ACTION_USB_PERMISSION.equals(action)) {
 				synchronized (this) {
 					UsbAccessory accessory = UsbManager.getAccessory(intent);
-					if (intent.getBooleanExtra(
-							UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+					if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
 						openAccessory(accessory);
 					} else {
 					}
@@ -124,12 +118,7 @@ public class MainActivity extends Activity {
 			FileDescriptor fd = mFileDescriptor.getFileDescriptor();
 			mInputStream = new FileInputStream(fd);
 			mOutputStream = new FileOutputStream(fd);
-			Thread thread = new Thread(null, commRunnable, TAG);
-			thread.start();
-			Log.d(TAG, "accessory opened");
-		} else {
-			Log.d(TAG, "accessory open fail");
-		}
+		} else {}
 	}
 
 	private void closeAccessory() {
@@ -143,44 +132,25 @@ public class MainActivity extends Activity {
 			mAccessory = null;
 		}
 	}
-
-	Runnable commRunnable = new Runnable() {
-		@Override
-		public void run() {
-			int ret = 0;
-			byte[] buffer = new byte[255];
-			while (ret >= 0) {
-				try {
-					ret = mInputStream.read(buffer);
-				} catch (IOException e) {
-					break;
-				}
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						tvEdt.setEnabled(true);
-						btn.setEnabled(true);
-					}
-				});
-			}
-		}
-	};
-
-	public void showMorse(View v) {
-		String texto = tvEdt.getText().toString();
-		Toast.makeText(this, texto, 8000).show();
-		byte[] buffer = new byte[2 + texto.length()];
-		buffer[0] = 0xf;
-		buffer[1] = (byte)texto.length();
-		for (int pos = 2, i = 0; i < texto.length(); i++, pos++){
-			buffer[pos] = (byte)texto.charAt(i);
-		
-		}
+	
+	public void liga(View v){
+		byte[] buffer = new byte[1];
+		buffer[1] = 0xe;
 		try {
 			mOutputStream.write(buffer);
-			tvEdt.setEnabled(false);
-			btn.setEnabled(false);
-		} catch (IOException e) {}
+		} catch (IOException e) {
+			Toast.makeText(this, e.getMessage(), 8000).show();
+		}
+	}
+	
+	public void desliga(View v){
+		byte[] buffer = new byte[1];
+		buffer[1] = 0xd;
+		try {
+			mOutputStream.write(buffer);
+		} catch (IOException e) {
+			Toast.makeText(this, e.getMessage(), 8000).show();
+		}
 	}
 
 }

@@ -1,0 +1,32 @@
+byte LIGA = 0xe;
+byte DESLIGA = 0xd;
+#include <Max3421e.h>
+#include <Usb.h>
+#include <AndroidAccessory.h>
+
+AndroidAccessory acc("RicardoOgliari", "LigaDesliga", "Simples liga/desliga", "1.0.0", "URI", "Serial");
+
+byte rcvmsg[255];
+
+void setup(){
+  pinMode(13, OUTPUT);
+  acc.powerOn();
+  randomSeed(analogRead(0));
+}
+
+
+void loop() {
+  
+  if (acc.isConnected()) {
+      int len = acc.read(rcvmsg, sizeof(rcvmsg), 1);
+      if (len > 0) {
+          byte acao = rcvmsg[1];
+          
+          if (acao == LIGA){
+            digitalWrite(13, HIGH);
+          } else {
+            digitalWrite(13, LOW);
+          }
+      }      
+  }
+}
